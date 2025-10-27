@@ -1,10 +1,10 @@
-# Use Python base image
+# Use Python 3.9 slim image as base
 FROM python:3.9-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies including Node.js
+# Install system dependencies including ffmpeg
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
@@ -16,19 +16,11 @@ RUN apt-get update && apt-get install -y \
 # Copy backend files
 COPY backend/ ./backend
 
-# Copy frontend files
-COPY frontend/ ./frontend
+# Copy frontend build files to where backend expects them
+COPY build/ ./build
 
 # Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Build frontend
-WORKDIR /app/frontend
-RUN npm install && npm run build
-
-# Switch back to app directory
-WORKDIR /app
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Expose port
 EXPOSE 5000
